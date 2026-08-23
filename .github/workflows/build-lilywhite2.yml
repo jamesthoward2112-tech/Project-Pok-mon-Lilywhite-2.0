@@ -1,1 +1,49 @@
+name: Build Lilywhite 2.0 M1
 
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - lilywhite-2.0
+
+jobs:
+  build-firered:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Lilywhite source
+        uses: actions/checkout@v4
+
+      - name: Install GBA build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            binutils-arm-none-eabi \
+            gcc-arm-none-eabi \
+            libnewlib-arm-none-eabi \
+            libpng-dev \
+            python3
+
+      - name: Apply Lilywhite 2.0 M1 source patch
+        run: |
+          python3 tools/lilywhite/apply_lilywhite2_m1.py .
+
+      - name: Build FireRed
+        run: |
+          make firered -j2 -O
+
+      - name: Verify ROM exists
+        run: |
+          test -s pokefirered.gba
+          sha256sum pokefirered.gba
+          ls -lh pokefirered.gba
+
+      - name: Package test ROM
+        run: |
+          cp pokefirered.gba "Pokemon_Lilywhite_2.0_M1_TEST.gba"
+
+      - name: Upload Lilywhite test ROM
+        uses: actions/upload-artifact@v4
+        with:
+          name: Pokemon_Lilywhite_2.0_M1_TEST
+          path: Pokemon_Lilywhite_2.0_M1_TEST.gba
+          retention-days: 30
