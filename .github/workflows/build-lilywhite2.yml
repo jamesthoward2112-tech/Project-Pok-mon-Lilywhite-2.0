@@ -25,7 +25,7 @@ jobs:
 
       - name: Apply Lilywhite 2.0 M1 source patch
         run: |
-          python3 tools/lilywhite/apply_lilywhite2_m1.py .
+          python3 tools/Lilywhite/apply_lilywhite2_m1.py .
 
       - name: Build FireRed
         run: |
